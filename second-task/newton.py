@@ -1,10 +1,10 @@
 import math
 
 
-def newton(func, func_der, start: float, root: float, delta: float) -> float | None:
+def newton(func, func_der, start: complex, root: float, delta: float) -> float | None:
     previous = start
     counter = 0
-    while abs(previous - root) > delta:
+    while abs(func(previous)) > delta:
         previous = previous - func(previous)/func_der(previous)
         counter += 1
     return previous, counter
@@ -19,4 +19,4 @@ def func_der(x: float):
 
 
 if __name__ == "__main__":
-    print(newton(func, func_der, 1, 0, 0.0001))
+    print(func(newton(func, func_der, 1, 0, 0.0001)[0]))
