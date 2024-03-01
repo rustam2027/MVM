@@ -7,7 +7,6 @@ def newton(func, func_der, start: float, root: float, delta: float) -> float | N
     while abs(previous - root) > delta:
         previous = previous - func(previous)/func_der(previous)
         counter += 1
-        print(previous)
     return previous, counter
 
 
