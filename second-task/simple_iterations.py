@@ -1,22 +1,20 @@
 import math
 
 
-def get_iterations(start_delta, delta, der: float) -> int:
-    return math.ceil(math.log(start_delta/delta)/(-math.log(der)))
-
-
-def simple_iterations(func, initial: float, amount: int) -> float | None:
+def simple_iterations(func, initial: float, root: float, delta: float) -> float | None:
     previous = initial
-    for _ in range(amount):
+    counter = 0
+    while abs(previous - root) > delta:
+        counter += 1
         new = func(previous)
         previous = new
-    return previous
+
+    return previous, counter
 
 
 def func(x: float) -> float:
-    return math.tan(x) - x
+    return math.tan(x)
 
 
 if __name__ == "__main__":
-    print(get_iterations(2, 0.001, 0.2))
-    print(simple_iterations(func, 0.785, get_iterations(2, 0.001, 0.2)))
+    print(simple_iterations(func, 1, 0, 0.001))
