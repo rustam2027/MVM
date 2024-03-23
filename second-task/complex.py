@@ -21,12 +21,13 @@ def get_root_number(z: complex):
 
 
 COEFFICIENT = 100
-X = 200
+X = 500
 if __name__ == "__main__":
     x = []
     y = []
     c = []
     for t in range(-X, X):
+        print(f"Roots calculated: {(t + X) * X} from {2 * X * X}\r", end="")
         for p in range(-X, X):
             if t == 0 and p == 0:
                 continue
@@ -36,7 +37,7 @@ if __name__ == "__main__":
                 newton(func, der_func, complex(t / COEFFICIENT, p / COEFFICIENT), 0, 0.001)[0]))
     fig, ax = plt.subplots()
 
-    ax.scatter(x, y, c=c)
+    ax.scatter(x, y, marker='o', c=c)
     ax.grid(True)
     fig.tight_layout()
 
