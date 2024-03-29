@@ -5,19 +5,21 @@ from typing import List
 from math import cos, pi, log
 
 
-def omega(roots: List[float], x):
+def omega(roots: List[float], x: float, index: int):
     result = 1
-    for root in roots:
-        result *= x - root
+    for i in range(len(roots)):
+        if i == index:
+            continue
+        result *= x - roots[i]
     return result
 
 
-def omega_num(roots: List[float], root: float):
+def omega_num(roots: List[float], index: int):
     result: float = 1
-    for root_i in roots:
-        if (root == root_i):
+    for i in range(len(roots)):
+        if i == index:
             continue
-        result *= (root - root_i)
+        result *= (roots[index] - roots[i])
     return result
 
 
@@ -25,8 +27,7 @@ def get_lagrange(roots: List[float], values: List[float]):
     def f(x):
         result = 0
         for index in range(len(roots)):
-            result += values[index] * omega(roots, x) / (
-                (x - roots[index]) * omega_num(roots, roots[index]))
+            result += values[index] * omega(roots, x, index) / (omega_num(roots, index))
         return result
     return f
 
@@ -34,11 +35,12 @@ def get_lagrange(roots: List[float], values: List[float]):
 def get_results(n: int, distrib: int) -> tuple:
     match distrib:
         case 1:
-            roots = [((2 * i / n) - (n - 1)/n) for i in range(n)]
+            roots = [((2 * i / n) - 1) for i in range(n + 1)]
         case 2:
-            roots = [cos(((2 * k + 1) / (2 * n)) * pi) for k in range(n)]
+            roots = [cos(((2 * k + 1) / (2 * (n + 1))) * pi) for k in range(n + 1)]
 
     values = [1 / (1 + 25 * root ** 2) for root in roots]
+    print(roots)
 
     f = get_lagrange(roots, values)
 
@@ -48,7 +50,8 @@ def get_results(n: int, distrib: int) -> tuple:
     function_values = [1 / (1 + 25 * i ** 2) for i in x]
     difference_values = [abs(interpolate_values[i] - function_values[i])
                          for i in range(len(interpolate_values))]
-    return interpolate_values, function_values, difference_values
+
+    return interpolate_values, function_values, difference_values, (roots, values)
 
 
 def get_single():
@@ -61,12 +64,13 @@ def get_single():
     ax.set_ylabel('y')
     x = np.linspace(-1, 1, 200)
 
-    interpolate_values, function_values, difference_values = get_results(
+    interpolate_values, function_values, difference_values, interpolate_points = get_results(
         n, distrib)
 
     ax.plot(x, interpolate_values, label="Полином Лагранжа")
     ax.plot(x, function_values, label="Функция")
     ax.plot(x, difference_values, label="Разность")
+    ax.scatter(*interpolate_points)
 
     if distrib == 1:
         ax.set_title("Равномерное")
@@ -101,3 +105,5 @@ def get_graph():
 
 if __name__ == "__main__":
     get_graph()
+
+    # get_single()
