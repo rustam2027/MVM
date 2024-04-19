@@ -8,3 +8,9 @@
 
 ## third task
  interpolating with Lagrange polinomes using even distribution and Chebyshev roots
+
+## forth task
+ numerical calculation of integrals
+
+## fifth task
+ tridiagonal method and numerical solution for the second-order differential equastions 
