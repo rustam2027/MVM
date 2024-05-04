@@ -44,13 +44,14 @@ def get_values(func, n: int, bounds: Tuple[float, float]):
     return [func(l + i * (r - l) / n) for i in range(1, n)], [l + i * (r - l) / n for i in range(1, n)]
 
 
-def get_bound_values():
+def get_bound_values(n: int):
+    h = math.pi / n
     print("Задайте краевые условия:")
     choice_l = int(input(
         "Чтобы задать левые граничные условия через производную введите 0 иначе введите 1: "))
     if choice_l == 0:
         left = float(input("Задайте значение производной в левой точке: "))
-        left_array = [-1, 1, left]
+        left_array = [-1/h, 1/h, left]
     else:
         left = float(input("Задайте значение функции в левой точке: "))
         left_array = [1, 0, left]
@@ -59,7 +60,7 @@ def get_bound_values():
         "Чтобы задать правые граничные условия через производную введите 0 иначе введите 1: "))
     if choice_r == 0:
         right = float(input("Задайте значение производной в правой точке: "))
-        right_array = [1, -1, right]
+        right_array = [1/h, -1/h, right]
     else:
         right = float(input("Задайте значение функции в правой точке: "))
         right_array = [0, 1, right]
@@ -75,12 +76,27 @@ def test_1():
     assert solve_tridioganal(A, B, C, D) == [-0.5, 1, 0.125]
 
 
-if __name__ == "__main__":
-    test_1()
+def get_max_error(n: int):
+    a, b, c, d, grid = get_tridioganal(math.cos, n, (-math.pi/2, math.pi/2))
+
+    b.insert(0, 1)
+    c.insert(0, 0)
+    d.insert(0, 0)
+
+    a.append(0)
+    b.append(1)
+    d.append(1)
+    result = solve_tridioganal(a, b, c, d)
+
+    acurate_solution = [(x/math.pi - math.cos(x) + 1/2) for x in grid]
+
+    return max([abs(result[i] - acurate_solution[i]) for i in range(len(grid))])
+
+def solve():
     n = int(input("Введите количество узлов: "))
     a, b, c, d, grid = get_tridioganal(math.cos, n, (-math.pi/2, math.pi/2))
 
-    left_array, right_array = get_bound_values()
+    left_array, right_array = get_bound_values(n)
 
     b.insert(0, left_array[0])
     c.insert(0, left_array[1])
@@ -104,13 +120,35 @@ if __name__ == "__main__":
     fig, ax = plt.subplots()
     print(result)
     grid = [-math.pi / 2] + grid + [math.pi / 2]
+    acurate_solution = [
+        (x/math.pi - math.cos(x) + 1/2) for x in grid]
 
+    error = [abs(result[i] - acurate_solution[i]) for i in range(len(grid))]
     # grid = [-math.pi / 2] + grid + [math.pi / 2]
 
-    ax.plot(grid, [x - math.cos(x) - math.pi / 2 + 1 for x in grid])
+    # ax.plot(grid, acurate_solution, label="Точное решение")
+    ax.plot(grid, error, label="Погрешность")
 
-    ax.plot(grid, result)
+    # ax.plot(grid, result, label="Численное решение")
     ax.grid(True)
+    plt.legend()
     fig.tight_layout()
 
     plt.show()
+
+if __name__ == "__main__":
+    test_1()
+    solve()
+    dots = [i for i in range(20, 50, 2)]
+    errors = []
+    
+    for i in dots:
+        errors.append(math.log2(get_max_error(i)))
+    
+    fig, ax = plt.subplots()
+
+    ax.plot([math.log2(i) for i in dots], errors)
+    plt.grid(True)
+    plt.show()
+
+
