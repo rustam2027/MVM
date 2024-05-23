@@ -4,6 +4,7 @@ from scipy.constants import h as H
 from numpy.linalg import eig
 
 from tridiagonal import solve_tridioganal
+
 H = H / (2 * np.pi)
 M = 1
 
@@ -19,15 +20,16 @@ def iterations(M: List[List[float]], x: np.ndarray, n: int) -> Tuple[List[np.mat
 
 
 def get_matrix(func: Callable, interval: Tuple[float, float], n: int) -> List[List[float]]:
-    return_arr: List[List[float]] = [[0], [1], [0]]  # <-- initial values on left border
-    c: float = H * 2 / (2 * M)
+    # <-- initial values on left border
+    return_arr: List[List[float]] = [[0], [1], [0]]
+    c: float = H ** 2 / (2 * M)
     l, r = interval
-    h = (r - l) / n
+    h = (r - l) / (n - 1)
 
-    for i in range(n - 1):
-        return_arr[0].append(-c / h * 2)
-        return_arr[1].append(c * (-2 / h * 2) + func(l + h * i))
-        return_arr[2].append(-c / h * 2)
+    for i in range(1, n - 1):
+        return_arr[0].append(-c / h ** 2)
+        return_arr[1].append(c * 2 / h ** 2 + func(l + h * i))
+        return_arr[2].append(-c / h ** 2)
 
     return_arr[0].append(0)  # |
     return_arr[1].append(1)  # | <-- initial values on right border
@@ -49,7 +51,7 @@ def get_matrix_from_tridiagonal(left: List[float], center: List[float], right: L
 
 
 if __name__ == "__main__":
-    potential_function = lambda x: 0.5 * x * 2
+    def potential_function(x): return 0.5 * x ** 2
     interval = (-4, 4)
     n_points = 10
 
@@ -57,7 +59,8 @@ if __name__ == "__main__":
     mat = np.array(get_matrix_from_tridiagonal(M1[0], M1[1], M1[2]))
 
     # Setting initial guess x as normalized vector
-    initial_guess = np.ones(len(M1[0]))  # +1 because n points imply n+1 matrix size
+    # +1 because n points imply n+1 matrix size
+    initial_guess = np.ones(len(M1[0]))
     initial_guess /= np.linalg.norm(initial_guess)
 
     yk, lambd = iterations(M1, initial_guess, 100)

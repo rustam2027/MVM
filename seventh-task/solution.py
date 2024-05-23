@@ -16,7 +16,7 @@ def solution():
     sol = iterations(matrix, [1 for i in range(len(matrix[0]))], 1000)
     print()
 
-    plt.plot([l + i * ((r - l) / 1000) for i in range(1001)], sol[0][-1])
+    plt.plot([l + i * ((r - l) / 1000) for i in range(1000)], sol[0][-1])
     plt.show()
 
 
