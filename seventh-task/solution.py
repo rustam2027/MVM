@@ -9,14 +9,16 @@ def U(x: float) -> float:
 
 
 def solution():
-    l = -1000
-    r = 1000
-    matrix = get_matrix(U, (l, r), 1000)
+    l = -10
+    r = 10
+    n = 25_000
+    matrix = get_matrix(U, (l, r), n)
     norm = get_matrix_from_tridiagonal(matrix[0], matrix[1], matrix[2])
-    sol = iterations(matrix, [1 for i in range(len(matrix[0]))], 1000)
+    sol = iterations(matrix, [0.1 for i in range(len(matrix[0]))], 10 ** -8)
+    print(sol[1] - 0.5)
     print()
 
-    plt.plot([l + i * ((r - l) / 1000) for i in range(1000)], sol[0][-1])
+    plt.plot([l + i * ((r - l) / n) for i in range(n)], sol[0][-1])
     plt.show()
 
 

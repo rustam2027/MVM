@@ -1,35 +1,37 @@
 import numpy as np
 from typing import List, Tuple, Callable
-from scipy.constants import h as H
 from numpy.linalg import eig
 
 from tridiagonal import solve_tridioganal
 
-H = H / (2 * np.pi)
-M = 1
 
 
-def iterations(M: List[List[float]], x: np.ndarray, n: int) -> Tuple[List[np.matrix], float]:
+def iterations(M: List[List[float]], x: np.ndarray, eps: float) -> Tuple[List[np.matrix], float]:
     y_k: List[np.ndarray] = []
     x_k: List[np.ndarray] = [x]
-    for _ in range(n):
+    lamd_prev = 0
+    lamd = 1
+    while abs(lamd - lamd_prev) > eps:
         y_k.append(solve_tridioganal(M[0], M[1], M[2], x_k[-1]))
-        lamd = np.dot(x_k[-1], y_k[-1]) / np.linalg.norm(y_k[-1]) ** 2
+        lamd, lamd_prev = np.dot(x_k[-1], y_k[-1]) / (np.linalg.norm(y_k[-1]) ** 2), lamd
         x_k.append(y_k[-1] / np.linalg.norm(y_k[-1]))
+        x_k[-1][-1] = 0
+        x_k[-1][0] = 0
+        print(lamd - 0.5)
     return y_k, lamd
 
 
 def get_matrix(func: Callable, interval: Tuple[float, float], n: int) -> List[List[float]]:
     # <-- initial values on left border
     return_arr: List[List[float]] = [[0], [1], [0]]
-    c: float = H ** 2 / (2 * M)
     l, r = interval
     h = (r - l) / (n - 1)
+    c = -1/2
 
     for i in range(1, n - 1):
-        return_arr[0].append(-c / h ** 2)
-        return_arr[1].append(c * 2 / h ** 2 + func(l + h * i))
-        return_arr[2].append(-c / h ** 2)
+        return_arr[0].append(c / h ** 2)
+        return_arr[1].append((-c * 2) / h ** 2 + func(l + h * i))
+        return_arr[2].append(c / h ** 2)
 
     return_arr[0].append(0)  # |
     return_arr[1].append(1)  # | <-- initial values on right border
@@ -58,12 +60,10 @@ if __name__ == "__main__":
     M1 = get_matrix(potential_function, interval, n_points)
     mat = np.array(get_matrix_from_tridiagonal(M1[0], M1[1], M1[2]))
 
-    # Setting initial guess x as normalized vector
-    # +1 because n points imply n+1 matrix size
     initial_guess = np.ones(len(M1[0]))
     initial_guess /= np.linalg.norm(initial_guess)
 
-    yk, lambd = iterations(M1, initial_guess, 100)
+    yk, lambd = iterations(M1, initial_guess, 10**-10)
     print(yk[-1])
     print(lambd)
     print(eig(mat))

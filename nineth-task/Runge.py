@@ -31,11 +31,13 @@ def get_k_3(t: float, x: float, y: float, z: float, f, g, q, h: float):
     k1 = (f(t, x, y, z), g(t, x, y, z), q(t, x, y, z))
 
     k2 = (f(t + h/2, x + (h * k1[0]) / 2, y + (h * k1[1]) / 2, z + (h * k1[2]) / 2),
-          g(t + h/2, x + (h * k1[0]) / 2, y + (h * k1[1]) / 2, z + (h * k1[2]) / 2),
+          g(t + h/2, x + (h * k1[0]) / 2, y +
+            (h * k1[1]) / 2, z + (h * k1[2]) / 2),
           q(t + h/2, x + (h * k1[0]) / 2, y + (h * k1[1]) / 2, z + (h * k1[2]) / 2))
 
     k3 = (f(t + h/2, x + (h * k2[0]) / 2, y + (h * k2[1]) / 2, z + (h * k2[2]) / 2),
-          g(t + h/2, x + (h * k2[0]) / 2, y + (h * k2[1]) / 2, z + (h * k2[2]) / 2),
+          g(t + h/2, x + (h * k2[0]) / 2, y +
+            (h * k2[1]) / 2, z + (h * k2[2]) / 2),
           q(t + h/2, x + (h * k2[0]) / 2, y + (h * k2[1]) / 2, z + (h * k2[2]) / 2))
 
     k4 = (f(t + h, x + h * k3[0], y + h * k3[1], z + h * k3[2]),
@@ -96,22 +98,28 @@ def get_solution_3(n: int, bounds, x0, y0, z0, f, g, q):
     arr_dots = [t0]
 
     while arr_dots[-1] < tn:
-        k = get_k_3(arr_dots[-1], arr_value[-1][0], arr_value[-1][1], arr_value[-1][2], f, g, q, h)
+        k = get_k_3(arr_dots[-1], arr_value[-1][0],
+                    arr_value[-1][1], arr_value[-1][2], f, g, q, h)
         arr_value.append(((arr_value[-1][0] + h/6 * (k[0][0] + 2 * k[1][0] + 2 * k[2][0] + k[3][0])),
-                         (arr_value[-1][1] + h/6 * (k[0][1] + 2 * k[1][1] + 2 * k[2][1] + k[3][1])),
+                         (arr_value[-1][1] + h/6 * (k[0][1] +
+                          2 * k[1][1] + 2 * k[2][1] + k[3][1])),
                          (arr_value[-1][2] + h/6 * (k[0][2] + 2 * k[1][2] + 2 * k[2][2] + k[3][2]))))
         arr_dots.append(arr_dots[-1] + h)
 
     return arr_value, arr_dots
 
 
-
 def get_approx(n):
-    arr_value1, arr_dots1 = get_solution_1(n, (0, 1), 1)
-    arr_value2, arr_dots2 = get_solution_1(n * 2, (0, 1), 1)
+    arr_value1, arr_dots1 = get_solution_1(n, (0, 1), 1, func)
+    arr_value2, arr_dots2 = get_solution_1(n * 2, (0, 1), 1, func)
+    fig, ax = plt.subplots()
 
-    max_error1 = max([abs(arr_value1[i] - math.e ** arr_dots1[i])
-                      for i in range(len(arr_value1))])
+
+    max_error1 = [abs(arr_value1[i] - math.e ** arr_dots1[i])
+                      for i in range(len(arr_value1))]
+    ax.plot(arr_dots1, max_error1)
+    plt.show()
+
     max_error2 = max([abs(arr_value2[i] - math.e ** arr_dots2[i])
                       for i in range(len(arr_value2))])
 
@@ -120,20 +128,20 @@ def get_approx(n):
 
 if __name__ == "__main__":
 
-    arr_value, arr_dots = get_solution_1(10, (0, 1), 1)
+    arr_value, arr_dots = get_solution_1(10, (0, 1), 1, func)
 
-    fig, ax = plt.subplots()
+    # fig, ax = plt.subplots()
 
-    draw_func(fig, ax, arr_value, arr_dots, "Численное решение")
-    draw_func(fig, ax, [math.e ** x for x in arr_dots],
-              arr_dots, "Aналитическое решение")
+    # draw_func(fig, ax, arr_value, arr_dots, "Численное решение")
+    # draw_func(fig, ax, [math.e ** x for x in arr_dots],
+              # arr_dots, "Aналитическое решение")
 
     print(arr_dots, arr_value)
 
-    plt.legend()
-    plt.grid()
-    plt.show()
+    # plt.legend()
+    # plt.grid()
+    # plt.show()
 
-    get_approx(10)
+    # get_approx(10)
     get_approx(100)
-    get_approx(200)
+    # get_approx(200)
